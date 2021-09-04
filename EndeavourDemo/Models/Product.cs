@@ -10,7 +10,7 @@ namespace EndeavourDemo.Models
         public Product()
         {
             PromotionRules = new HashSet<PromotionRule>();
-            Trolleys = new HashSet<Trolley>();
+            TrolleyItems = new HashSet<TrolleyItem>();
         }
 
         public int ProductId { get; set; }
@@ -21,6 +21,6 @@ namespace EndeavourDemo.Models
         public DateTime DateModified { get; set; }
 
         public virtual ICollection<PromotionRule> PromotionRules { get; set; }
-        public virtual ICollection<Trolley> Trolleys { get; set; }
+        public virtual ICollection<TrolleyItem> TrolleyItems { get; set; }
     }
 }

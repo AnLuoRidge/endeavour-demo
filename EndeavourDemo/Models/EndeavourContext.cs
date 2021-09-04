@@ -19,7 +19,7 @@ namespace EndeavourDemo.Models
 
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<PromotionRule> PromotionRules { get; set; }
-        public virtual DbSet<Trolley> Trolleys { get; set; }
+        public virtual DbSet<TrolleyItem> TrolleyItems { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -134,18 +134,15 @@ namespace EndeavourDemo.Models
                     .HasConstraintName("fk_product_id_promotion_rule_product");
             });
 
-            modelBuilder.Entity<Trolley>(entity =>
+            modelBuilder.Entity<TrolleyItem>(entity =>
             {
-                entity.HasKey(e => e.CartItemId)
-                    .HasName("PRIMARY");
-
-                entity.ToTable("trolley");
+                entity.ToTable("trolley_item");
 
                 entity.HasIndex(e => e.ProductId, "fk_product_id_trolley_product");
 
-                entity.Property(e => e.CartItemId)
+                entity.Property(e => e.TrolleyItemId)
                     .HasColumnType("int(11)")
-                    .HasColumnName("cart_item_id");
+                    .HasColumnName("trolley_item_id");
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("timestamp")
@@ -172,7 +169,7 @@ namespace EndeavourDemo.Models
                     .HasColumnName("user_id");
 
                 entity.HasOne(d => d.Product)
-                    .WithMany(p => p.Trolleys)
+                    .WithMany(p => p.TrolleyItems)
                     .HasForeignKey(d => d.ProductId)
                     .HasConstraintName("fk_product_id_trolley_product");
             });

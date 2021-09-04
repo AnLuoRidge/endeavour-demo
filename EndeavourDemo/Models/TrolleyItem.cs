@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace EndeavourDemo.Models
 {
-    public partial class Trolley
+    public partial class TrolleyItem
     {
-        public int CartItemId { get; set; }
+        public int TrolleyItemId { get; set; }
         public int ProductId { get; set; }
         public int Qty { get; set; }
         public int? UserId { get; set; }
