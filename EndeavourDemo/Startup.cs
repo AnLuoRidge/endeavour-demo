@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EndeavourDemo.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +17,8 @@ namespace EndeavourDemo
 {
     public class Startup
     {
+        readonly string allowCorsOrigins = "_allowCorsOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -25,6 +29,27 @@ namespace EndeavourDemo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // DB
+            var connectionString = "server=tiny-database-instance-1.ccqiuiplz4kp.ap-southeast-2.rds.amazonaws.com;user=admin;password=TINYDBqwaszx12;database=endeavour;TreatTinyAsBoolean=true;";
+
+            var serverVersion = new MySqlServerVersion(new Version(5, 7, 23));
+
+            services.AddDbContext<EndeavourContext>(
+                dbContextOptions => dbContextOptions
+                    .UseMySql(connectionString, serverVersion)
+                    .EnableSensitiveDataLogging()
+                    .EnableDetailedErrors()
+            );
+
+            // CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: allowCorsOrigins,
+                                  builder =>
+                                  {
+                                      builder.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
+                                  });
+            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -45,7 +70,7 @@ namespace EndeavourDemo
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseCors(allowCorsOrigins);
 
             app.UseEndpoints(endpoints =>
             {
