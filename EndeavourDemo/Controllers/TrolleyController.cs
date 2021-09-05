@@ -132,5 +132,21 @@ namespace EndeavourDemo.Controllers
                 }
             }
         }
+
+        [HttpPost("remove/{trolleyItemId}")]
+        public ActionResult AddToTrolley(int trolleyItemId)
+        {
+            var trolleyItem = _ctx.TrolleyItems.FirstOrDefault(ti => ti.TrolleyItemId == trolleyItemId);
+            if (trolleyItem is not null)
+            {
+                _ctx.TrolleyItems.Remove(trolleyItem);
+                _ctx.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }
