@@ -99,7 +99,7 @@ namespace EndeavourDemo.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddToTrolley([FromQuery] int productId, [FromQuery] int qty)
+        public async Task<IActionResult> Add([FromQuery] int productId, [FromQuery] int qty)
         {
             if (qty <= 0)
             {
@@ -133,20 +133,51 @@ namespace EndeavourDemo.Controllers
             }
         }
 
-        [HttpPost("remove/{trolleyItemId}")]
-        public ActionResult AddToTrolley(int trolleyItemId)
+        [HttpDelete("remove/{trolleyItemId}")]
+        public async Task<IActionResult> Remove(int trolleyItemId)
         {
             var trolleyItem = _ctx.TrolleyItems.FirstOrDefault(ti => ti.TrolleyItemId == trolleyItemId);
             if (trolleyItem is not null)
             {
                 _ctx.TrolleyItems.Remove(trolleyItem);
-                _ctx.SaveChanges();
+                await _ctx.SaveChangesAsync();
                 return Ok();
             }
             else
             {
                 return NotFound();
             }
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> Update([FromQuery] int trolleyItemId, [FromQuery] int qty)
+        {
+            if (qty < 0)
+            {
+                return BadRequest("Invalid quantity");
+            }
+
+            var trolleyItem = _ctx.TrolleyItems.FirstOrDefault(ti => ti.TrolleyItemId == trolleyItemId);
+            if (trolleyItem is not null)
+            {
+                if (qty == 0)
+                {
+                    await Remove(trolleyItemId);
+                }
+                else
+                {
+                    trolleyItem.Qty = qty;
+                    _ctx.Entry(trolleyItem).Property(t => t.DateCreated).IsModified = false;
+                    await _ctx.SaveChangesAsync();
+                }
+                await _ctx.SaveChangesAsync();
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
+
         }
     }
 }
