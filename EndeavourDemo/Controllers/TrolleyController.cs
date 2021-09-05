@@ -108,7 +108,7 @@ namespace EndeavourDemo.Controllers
             var trolleyItem = _ctx.TrolleyItems.FirstOrDefault(ti => ti.ProductId == productId);
             if (trolleyItem is not null)
             {
-                trolleyItem.Qty++;
+                trolleyItem.Qty += qty;
                 _ctx.SaveChanges();
                 return Ok(trolleyItem.TrolleyItemId);
             }
@@ -119,7 +119,7 @@ namespace EndeavourDemo.Controllers
                 {
                     var newItem = new TrolleyItem
                     {
-                        ProductId = product.ProductId,
+                        ProductId = productId,
                         Qty = qty
                     };
                     _ctx.TrolleyItems.Add(newItem);
@@ -167,7 +167,6 @@ namespace EndeavourDemo.Controllers
                 else // qty > 0
                 {
                     trolleyItem.Qty = qty;
-                    _ctx.Entry(trolleyItem).Property(t => t.DateCreated).IsModified = false;
                 }
                 await _ctx.SaveChangesAsync();
                 return NoContent();
@@ -182,7 +181,7 @@ namespace EndeavourDemo.Controllers
         [HttpDelete("all")]
         public IActionResult ClearTrolley()
         {
-            _ctx.TrolleyItems.RemoveRange(_ctx.TrolleyItems); /
+            _ctx.TrolleyItems.RemoveRange(_ctx.TrolleyItems);
             _ctx.SaveChanges();
             return Ok();
         }
