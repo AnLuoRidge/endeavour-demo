@@ -30,13 +30,11 @@ namespace EndeavourDemo
         public void ConfigureServices(IServiceCollection services)
         {
             // DB
-            var connectionString = "server=tiny-database-instance-1.ccqiuiplz4kp.ap-southeast-2.rds.amazonaws.com;user=admin;password=TINYDBqwaszx12;database=endeavour;TreatTinyAsBoolean=true;";
-
             var serverVersion = new MySqlServerVersion(new Version(5, 7, 12));
 
             services.AddDbContext<EndeavourContext>(
                 dbContextOptions => dbContextOptions
-                    .UseMySql(connectionString, serverVersion)
+                    .UseMySql(Configuration.GetConnectionString("database"), serverVersion)
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
             );
