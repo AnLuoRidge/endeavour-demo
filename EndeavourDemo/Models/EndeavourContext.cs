@@ -91,13 +91,18 @@ namespace EndeavourDemo.Models
                     .HasColumnName("date_modified")
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                entity.Property(e => e.Definition)
+                    .HasMaxLength(100)
+                    .HasColumnName("definition");
+
                 entity.Property(e => e.EndDate)
                     .HasColumnType("datetime")
                     .HasColumnName("end_date");
 
-                entity.Property(e => e.Expression)
-                    .HasMaxLength(100)
-                    .HasColumnName("expression");
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasColumnName("is_active")
+                    .HasDefaultValueSql("'1'");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -116,16 +121,25 @@ namespace EndeavourDemo.Models
                 entity.Property(e => e.Scope)
                     .HasColumnType("int(11)")
                     .HasColumnName("scope")
-                    .HasDefaultValueSql("'1'");
+                    .HasDefaultValueSql("'1'")
+                    .HasComment("1 product 2 cross-product 3 trolley");
 
                 entity.Property(e => e.StartDate)
                     .HasColumnType("datetime")
                     .HasColumnName("start_date");
 
+                entity.Property(e => e.SubtotalExpression)
+                    .HasMaxLength(100)
+                    .HasColumnName("subtotal_expression");
+
                 entity.Property(e => e.Type)
                     .IsRequired()
                     .HasMaxLength(100)
                     .HasColumnName("type");
+
+                entity.Property(e => e.UnitPriceExpression)
+                    .HasMaxLength(100)
+                    .HasColumnName("unit_price_expression");
 
                 entity.HasOne(d => d.Product)
                     .WithMany(p => p.PromotionRules)

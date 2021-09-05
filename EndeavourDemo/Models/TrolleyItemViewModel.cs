@@ -8,10 +8,16 @@ namespace EndeavourDemo.Models
         public int TrolleyItemId { get; set; }
         public int ProductId { get; set; }
         public string ProductName { get; set; }
-        public string Qty { get; set; }
+        public int Qty { get; set; }
         public decimal OriginalUnitPrice { get; set; }
         public decimal RealUnitPrice { get; set; }
-        public decimal RealSubtotal { get; set; } // Original subtotal could be calculated.
-        public List<PromotionRule> Promotions { get; set; }
+        public decimal OriginalSubtotal { get; set; }
+        public decimal RealSubtotal { get; set; }
+        public IEnumerable<PromotionRuleViewModel> Promotions { get; set; }
+    }
+
+    public class TrolleyItemWithCompletePromotionModel : TrolleyItemViewModel
+    {
+        public IEnumerable<PromotionRule> PromotionRules { get; set; }
     }
 }
