@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using EndeavourDemo.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using EndeavourDemo.Services;
 
 namespace EndeavourDemo.Controllers
 {
@@ -14,10 +15,12 @@ namespace EndeavourDemo.Controllers
     public class TrolleyController : ControllerBase
     {
         private EndeavourContext _ctx;
+        private TrolleyService _svc;
 
-        public TrolleyController(EndeavourContext context)
+        public TrolleyController(EndeavourContext context, TrolleyService service)
         {
             _ctx = context;
+            _svc = service;
         }
 
         [HttpGet]
@@ -53,31 +56,8 @@ namespace EndeavourDemo.Controllers
             // 3. whole trolley
 
             // 1 Single item promotion
-            for (int i = 0; i < rawTrolleyItems.Count(); i++)
-            {
-                var rawItem = rawTrolleyItems.ElementAt(i);
-                var item = trolleyItems.ElementAt(i);
-                item.OriginalSubtotal = item.OriginalUnitPrice * item.Qty;
-
-                // Assume only one promotion for one product for now.
-                // TODO check product_code, expiry data, etc matched,
-                var promotionRule = rawItem.PromotionRules.FirstOrDefault();
-                if (promotionRule is not null)
-                {
-                    // Create a data table for calculation.
-                    DataTable dt = new();
-                    var unitPriceCal = promotionRule.UnitPriceExpression.Replace("unit_price", item.OriginalUnitPrice.ToString());
-                    item.RealUnitPrice = (decimal)dt.Compute(unitPriceCal, "");
-
-                    var subtotalCal = promotionRule.SubtotalExpression.Replace("unit_price", item.OriginalUnitPrice.ToString());
-                    subtotalCal = subtotalCal.Replace("qty", item.Qty.ToString());
-                    item.RealSubtotal = (decimal)dt.Compute(subtotalCal, ""); ;
-                }
-                else
-                {
-                    item.RealSubtotal = item.OriginalUnitPrice * item.Qty;
-                }
-            }
+            // Assume only one promotion for one product for now.
+            _svc.applyIndividualPromotion(trolleyItems, rawTrolleyItems.Select(i => i.PromotionRules.FirstOrDefault()));
 
             // 3 Trolly promotion
             TrolleyViewModel trolley = new();
@@ -86,7 +66,8 @@ namespace EndeavourDemo.Controllers
             trolley.OriginalTotal = trolleyItems.Sum(ti => ti.OriginalSubtotal);
             trolley.RealTotal = trolleyItems.Sum(ti => ti.RealSubtotal); // The real total before applying trolley level promotion.
             // Assume only one promotion for the trolley now.
-            var trolleyPromotionRules = await _ctx.PromotionRules.FirstOrDefaultAsync(r => r.Scope == 3 && r.IsActive == true); // 1 product 2 cross-product 3 trolley. The same comment in the database.
+            // Promotion scope: 1 product 2 cross-product 3 trolley. The same comment in the database.
+            var trolleyPromotionRules = await _ctx.PromotionRules.FirstOrDefaultAsync(r => r.Scope == 3 && r.IsActive == true);
             if (trolleyPromotionRules is not null)
             {
                 // Create a data table for calculation.
@@ -105,6 +86,7 @@ namespace EndeavourDemo.Controllers
             {
                 return BadRequest("Invalid quantity");
             }
+
             var trolleyItem = _ctx.TrolleyItems.FirstOrDefault(ti => ti.ProductId == productId);
             if (trolleyItem is not null)
             {
@@ -112,7 +94,7 @@ namespace EndeavourDemo.Controllers
                 _ctx.SaveChanges();
                 return Ok(trolleyItem.TrolleyItemId);
             }
-            else
+            else // new item
             {
                 var product = await _ctx.Products.FindAsync(productId);
                 if (product is not null)
