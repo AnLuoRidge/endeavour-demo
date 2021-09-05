@@ -164,11 +164,10 @@ namespace EndeavourDemo.Controllers
                 {
                     await Remove(trolleyItemId);
                 }
-                else
+                else // qty > 0
                 {
                     trolleyItem.Qty = qty;
                     _ctx.Entry(trolleyItem).Property(t => t.DateCreated).IsModified = false;
-                    await _ctx.SaveChangesAsync();
                 }
                 await _ctx.SaveChangesAsync();
                 return NoContent();
@@ -178,6 +177,14 @@ namespace EndeavourDemo.Controllers
                 return NotFound();
             }
 
+        }
+
+        [HttpDelete("all")]
+        public IActionResult ClearTrolley()
+        {
+            _ctx.TrolleyItems.RemoveRange(_ctx.TrolleyItems); /
+            _ctx.SaveChanges();
+            return Ok();
         }
     }
 }
