@@ -34,7 +34,7 @@ namespace EndeavourDemo
 
             services.AddDbContext<EndeavourContext>(
                 dbContextOptions => dbContextOptions
-                    .UseMySql(Configuration.GetConnectionString("database"), serverVersion)
+                    .UseMySql(Configuration.GetConnectionString("Database"), serverVersion)
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
             );
